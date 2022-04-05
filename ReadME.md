@@ -1,19 +1,20 @@
 Classes:
+- Address
+- DepartmentAddress
+- Author
+- Book
+- CopyOfBooks
+- Department
+- ISBN
+- Review
+- Client
+- Librarian
+- User
+Actions: 
 
-Address
-DepartmentAddress
-Author
-Book
-CopyOfBooks
-Department
-ISBN
-Review
-Client
-Librarian
-User
-Actions: User can:
+- User can:
 
-  - change the password;
+    - change the password;
 Librarian can:
 
 - create a special account;
