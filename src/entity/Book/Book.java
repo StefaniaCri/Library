@@ -22,6 +22,10 @@ public class Book {
         this.publishingHouse = publishingHouse;
     }
 
+    public Book() throws ISBNFormatException {
+        this.isbn = new ISBN("0569934052");
+    }
+
     public void setPages(Integer pages) {
         this.pages = pages;
     }

@@ -9,6 +9,7 @@ public class MainService {
 
     protected static User loggedIn = null;
     protected static MainService instance = null;
+    private AuditService auditService = AuditService.getInstance();
 
     public MainService() {
     }
@@ -26,7 +27,7 @@ public class MainService {
     static List<Author> authors = new ArrayList<>();
 
     User addUser() {
-
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         System.out.println("Enter your name: ");
         String name = read.next();
 
@@ -52,6 +53,7 @@ public class MainService {
     }
 
     public void logInAccount(String email, String password) {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn == null) {
             User user = isExistingEmail(email, password);
             if (user != null) {
@@ -66,10 +68,13 @@ public class MainService {
     }
 
     public void logOut() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         loggedIn = null;
     }
 
     public User isExistingEmail(String email, String password) {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
+        System.out.println(usersList);
         for (User user : instance.usersList) {
             if (user.getEmail().equals(email) && user.getPassword().equals(password)) {
                 return user;
@@ -80,6 +85,7 @@ public class MainService {
 
 
     public void changePassword() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn != null) {
             System.out.println("Current password:");
             String password = read.next();

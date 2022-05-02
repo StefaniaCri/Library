@@ -6,12 +6,21 @@ import entity.Book.ISBNFormatException;
 import entity.Users.Librarian;
 import entity.Users.User;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class LibrarianService extends MainService{
+public class LibrarianService extends MainService {
     protected static LibrarianService instance = null;
     private BookService bookService = BookService.getInstance();
     private AuthorService authorService = AuthorService.getInstance();
+    private WriteToCSV writeToCSV = WriteToCSV.getInstance();
+    private List<Librarian> librarians = new ArrayList<>();
+    private AuditService auditService = AuditService.getInstance();
+    private ReadFromCSV reader = ReadFromCSV.getInstance();
+    private Boolean needUpdate = false;
 
     public LibrarianService() {
     }
@@ -24,20 +33,25 @@ public class LibrarianService extends MainService{
     }
 
     public Librarian createLibrarian() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         User a = addUser();
+        writeCSV(a);
         loggedIn = new Librarian(a.getName(), a.getSurname(), a.getUsername(), a.getEmail(), a.getPassword());
         usersList.add(loggedIn);
+        librarians.add((Librarian) loggedIn);
         return (Librarian) loggedIn;
     }
 
-    public static void seeUsers() {
+    public void seeUsers() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Librarian) {
             List<User> users = instance.sortList();
             System.out.println(users);
         } else System.out.println("You are not logged in an account");
     }
 
-    public void addBook() throws ISBNFormatException {
+    public void addBook() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Librarian) {
             Book book = bookService.readBook();
             instance.books.add(book);
@@ -46,6 +60,7 @@ public class LibrarianService extends MainService{
     }
 
     public void editBook() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Librarian) {
             System.out.println("Title of the book you are looking for");
             String title = read.next();
@@ -63,6 +78,7 @@ public class LibrarianService extends MainService{
     }
 
     public void removeBook() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Librarian) {
             System.out.println("Title of the book you are looking for");
             String title1 = read.next();
@@ -72,6 +88,7 @@ public class LibrarianService extends MainService{
     }
 
     public void addAuthor() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Librarian) {
             Author a = authorService.readAuthor();
             instance.authors.add(a);
@@ -79,6 +96,7 @@ public class LibrarianService extends MainService{
     }
 
     public void removeAuthor() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Librarian) {
             System.out.println("First name of the author you are looking for");
             String first_name = read.next();
@@ -89,4 +107,40 @@ public class LibrarianService extends MainService{
 
     }
 
+    public void readCSV() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
+        var columns = reader.getCSVcolumns(".\\src\\data\\librarian.csv");
+        for (var column : columns) {
+            librarians.add(new Librarian(column[0], column[1], column[2], column[3], column[4]));
+        }
+        usersList.addAll(librarians);
+    }
+
+    public void writeCSV(User a) {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
+        List<String> toWrite = new ArrayList<>();
+        toWrite.addAll(Arrays.asList(a.getName(), a.getSurname(), a.getUsername(), a.getEmail(), a.getPassword()));
+        writeToCSV.writeCSV(".\\src\\data\\librarian.csv", toWrite);
+    }
+
+    public void updateCSV() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
+        try {
+            var file = new FileWriter(".\\src\\data\\librarian.csv");
+
+            for (var librarian : librarians) {
+                writeCSV(librarian);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Boolean getNeedUpdate() {
+        return needUpdate;
+    }
+
+    public void setNeedUpdate(Boolean needUpdate) {
+        this.needUpdate = needUpdate;
+    }
 }

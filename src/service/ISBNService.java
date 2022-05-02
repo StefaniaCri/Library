@@ -19,7 +19,6 @@ public class ISBNService extends MainService {
     ISBN readISBN() throws ISBNFormatException {
         System.out.println("Enter ISBN");
         String isbn = read.next();
-
         return new ISBN(isbn);
     }
 
