@@ -19,12 +19,10 @@ public class Main {
         BookService bookService = BookService.getInstance();
         AuthorService authorService = AuthorService.getInstance();
         Scanner read = new Scanner(System.in);
-
-        authorService.readCSV();
-        bookService.readCSV();
-        librarian.readCSV();
-        client.readCSV();
-
+        Boolean authorNeedUpdate = false;
+        Boolean bookNeedUpdate = false;
+        Boolean clientNeedUpdate = false;
+        Boolean librarianNeedUpdate = false;
         int option;
         do {
             int option1;
@@ -63,18 +61,18 @@ public class Main {
                                 break;
                             case 4:
                                 librarian.editBook();
-                                bookService.setNeedUpdate(true);
+                                bookNeedUpdate = true;
                                 break;
                             case 5:
                                 librarian.removeBook();
-                                bookService.setNeedUpdate(true);
+                                bookNeedUpdate = true;
                                 break;
                             case 6:
                                 librarian.seeUsers();
                                 break;
                             case 7:
                                 service.changePassword();
-                                librarian.setNeedUpdate(true);
+                                librarianNeedUpdate = true;
                                 break;
                             case 8:
                                 service.logOut();
@@ -86,7 +84,7 @@ public class Main {
                                 break;
                             case 10:
                                 librarian.removeAuthor();
-                                authorService.setNeedUpdate(true);
+                                authorNeedUpdate = true;
                                 break;
                         }
                     } while (option1 < 11);
@@ -172,7 +170,7 @@ public class Main {
                                 break;
                             case 9:
                                 service.changePassword();
-                                client.setNeedUpdate(true);
+                                clientNeedUpdate = true;
                                 break;
                             case 10:
                                 service.logOut();
@@ -188,13 +186,13 @@ public class Main {
         } while (option < 3);
         //System.out.println(service.getBooks());
         //la final updatam toate CSV-uril in caz ca a aparut o modificare facuta de user
-        if (authorService.getNeedUpdate())
+        if (authorNeedUpdate)
             authorService.updateCSV();
-        if(librarian.getNeedUpdate())
+        if(librarianNeedUpdate)
             librarian.updateCSV();
-        if(client.getNeedUpdate())
+        if(clientNeedUpdate)
             client.updateCSV();
-        if(bookService.getNeedUpdate())
+        if(bookNeedUpdate)
             bookService.updateCSV();
     }
 }

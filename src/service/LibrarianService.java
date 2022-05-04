@@ -2,27 +2,26 @@ package service;
 
 import entity.Book.Author;
 import entity.Book.Book;
-import entity.Book.ISBNFormatException;
 import entity.Users.Librarian;
 import entity.Users.User;
+import service.Read.LibrarianReadFromCSV;
+import service.Write.LibrarianWriteToCSV;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class LibrarianService extends MainService {
     protected static LibrarianService instance = null;
-    private BookService bookService = BookService.getInstance();
-    private AuthorService authorService = AuthorService.getInstance();
-    private WriteToCSV writeToCSV = WriteToCSV.getInstance();
-    private List<Librarian> librarians = new ArrayList<>();
-    private AuditService auditService = AuditService.getInstance();
-    private ReadFromCSV reader = ReadFromCSV.getInstance();
-    private Boolean needUpdate = false;
+    private final BookService bookService = BookService.getInstance();
+    private final AuthorService authorService = AuthorService.getInstance();
+    private final LibrarianWriteToCSV writeToCSV = LibrarianWriteToCSV.getInstance();
+    private final List<Librarian> librarians;
+    private final AuditService auditService = AuditService.getInstance();
+    private final LibrarianReadFromCSV reader = LibrarianReadFromCSV.getInstance();
 
-    public LibrarianService() {
+
+    private LibrarianService() {
+        librarians = reader.readCSV();
+        usersList.addAll(librarians);
     }
 
     public static LibrarianService getInstance() {
@@ -35,7 +34,7 @@ public class LibrarianService extends MainService {
     public Librarian createLibrarian() {
         auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         User a = addUser();
-        writeCSV(a);
+        writeToCSV.writeCSV(a);
         loggedIn = new Librarian(a.getName(), a.getSurname(), a.getUsername(), a.getEmail(), a.getPassword());
         usersList.add(loggedIn);
         librarians.add((Librarian) loggedIn);
@@ -106,41 +105,8 @@ public class LibrarianService extends MainService {
         } else System.out.println("You are not logged in an account");
 
     }
-
-    public void readCSV() {
-        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
-        var columns = reader.getCSVcolumns(".\\src\\data\\librarian.csv");
-        for (var column : columns) {
-            librarians.add(new Librarian(column[0], column[1], column[2], column[3], column[4]));
-        }
-        usersList.addAll(librarians);
-    }
-
-    public void writeCSV(User a) {
-        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
-        List<String> toWrite = new ArrayList<>();
-        toWrite.addAll(Arrays.asList(a.getName(), a.getSurname(), a.getUsername(), a.getEmail(), a.getPassword()));
-        writeToCSV.writeCSV(".\\src\\data\\librarian.csv", toWrite);
-    }
-
-    public void updateCSV() {
-        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
-        try {
-            var file = new FileWriter(".\\src\\data\\librarian.csv");
-
-            for (var librarian : librarians) {
-                writeCSV(librarian);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public Boolean getNeedUpdate() {
-        return needUpdate;
-    }
-
-    public void setNeedUpdate(Boolean needUpdate) {
-        this.needUpdate = needUpdate;
+    void updateCSV()
+    {
+        writeToCSV.updateCSV(librarians);
     }
 }

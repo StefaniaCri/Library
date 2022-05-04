@@ -5,22 +5,23 @@ import entity.Book.Book;
 import entity.Book.Review;
 import entity.Users.Client;
 import entity.Users.User;
+import service.Read.ClientReadFromCSV;
+import service.Write.ClientWriteToCSV;
 
-import java.io.FileWriter;
-import java.io.IOException;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ClientService extends MainService {
     protected static ClientService instance = null;
-    private List<Client> clients = new ArrayList<>();
-    private WriteToCSV writeToCSV = WriteToCSV.getInstance();
-    private ReadFromCSV reader = ReadFromCSV.getInstance();
+    private List<Client> clients;
+    private ClientWriteToCSV writeToCSV = ClientWriteToCSV.getInstance();
+    private ClientReadFromCSV reader = ClientReadFromCSV.getInstance();
     private AuditService auditService = AuditService.getInstance();
-    private Boolean needUpdate = false;
 
-    public ClientService() {
+    private ClientService() {
+        clients = reader.readCSV();
+        usersList.addAll(clients);
     }
 
     public static ClientService getInstance() {
@@ -39,7 +40,7 @@ public class ClientService extends MainService {
         String phoneNumber = read.next();
 
         loggedIn = new Client(a.getName(), a.getSurname(), a.getUsername(), a.getEmail(), a.getPassword(), phoneNumber);
-        writeCSV((Client) loggedIn);
+        writeToCSV.writeCSV((Client) loggedIn);
         usersList.add(loggedIn);
         clients.add((Client) loggedIn);
         return (Client) loggedIn;
@@ -151,41 +152,7 @@ public class ClientService extends MainService {
         }
     }
 
-    public void readCSV() {
-        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
-        var columns = reader.getCSVcolumns(".\\src\\data\\client.csv");
-        for (var column : columns) {
-            clients.add(new Client(column[0], column[1], column[2], column[3], column[4], column[5]));
-        }
-        usersList.addAll(clients);
-    }
-
-    public void writeCSV(Client a) {
-        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
-        List<String> toWrite = new ArrayList<>();
-        toWrite.addAll(Arrays.asList(a.getName(), a.getSurname(), a.getUsername(), a.getEmail(), a.getPassword(), a.getPhoneNumber()));
-        writeToCSV.writeCSV(".\\src\\data\\client.csv", toWrite);
-    }
-
-    public void updateCSV() {
-        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
-        try {
-            var file = new FileWriter(".\\src\\data\\client.csv");
-
-            for (var client : clients) {
-                writeCSV(client);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public Boolean getNeedUpdate() {
-        return needUpdate;
-    }
-
-    public void setNeedUpdate(Boolean needUpdate) {
-        this.needUpdate = needUpdate;
+    void updateCSV() {
+        writeToCSV.updateCSV(clients);
     }
 }

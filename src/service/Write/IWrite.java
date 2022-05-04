@@ -1,19 +1,13 @@
-package service;
+package service.Write;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
+public interface IWrite<T> {
 
-public class WriteToCSV {
-    private static WriteToCSV writeInstance = null;
-
-    public static WriteToCSV getInstance() {
-        if (writeInstance == null)
-            writeInstance = new WriteToCSV();
-        return writeInstance;
-    }
-
-    public void writeCSV(String fileName, List<String> whatTo) {
+    default void writeToCSV(String fileName, List<String> whatTo) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
             whatTo.stream().map(x -> {
                 if (whatTo.get(whatTo.size() - 1) != x) return x + ",";
@@ -31,4 +25,8 @@ public class WriteToCSV {
             System.out.println("Something went wrong in writeCSV");
         }
     }
+    void updateCSV(List<T> whatTo);
+
+
 }
+
