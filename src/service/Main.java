@@ -1,30 +1,32 @@
 package service;
 
-import entity.Book.*;
-import entity.Users.Librarian;
+import entity.Book.Author;
+import entity.Book.Book;
+
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Scanner;
 
 
 public class Main {
 
-
-    public static void main(String[] args) throws ISBNFormatException {
+    public static void main(String[] args) {
         //a valid ISBN for testing: 0569934052
         MainService service = MainService.getInstance();
         ClientService client = ClientService.getInstance();
         LibrarianService librarian = LibrarianService.getInstance();
         BookService bookService = BookService.getInstance();
         AuthorService authorService = AuthorService.getInstance();
-
         Scanner read = new Scanner(System.in);
+        Boolean authorNeedUpdate = false;
+        Boolean bookNeedUpdate = false;
+        Boolean clientNeedUpdate = false;
+        Boolean librarianNeedUpdate = false;
         int option;
         do {
             int option1;
-            System.out.println("The type of account hou have:");
+            System.out.println("The type of account you have:");
             System.out.println("1 - Librarian");
             System.out.println("2 - Client");
             option = read.nextInt();
@@ -59,15 +61,18 @@ public class Main {
                                 break;
                             case 4:
                                 librarian.editBook();
+                                bookNeedUpdate = true;
                                 break;
                             case 5:
                                 librarian.removeBook();
+                                bookNeedUpdate = true;
                                 break;
                             case 6:
                                 librarian.seeUsers();
                                 break;
                             case 7:
                                 service.changePassword();
+                                librarianNeedUpdate = true;
                                 break;
                             case 8:
                                 service.logOut();
@@ -79,6 +84,7 @@ public class Main {
                                 break;
                             case 10:
                                 librarian.removeAuthor();
+                                authorNeedUpdate = true;
                                 break;
                         }
                     } while (option1 < 11);
@@ -164,6 +170,7 @@ public class Main {
                                 break;
                             case 9:
                                 service.changePassword();
+                                clientNeedUpdate = true;
                                 break;
                             case 10:
                                 service.logOut();
@@ -178,6 +185,14 @@ public class Main {
 
         } while (option < 3);
         //System.out.println(service.getBooks());
-
+        //la final updatam toate CSV-uril in caz ca a aparut o modificare facuta de user
+        if (authorNeedUpdate)
+            authorService.updateCSV();
+        if(librarianNeedUpdate)
+            librarian.updateCSV();
+        if(clientNeedUpdate)
+            client.updateCSV();
+        if(bookNeedUpdate)
+            bookService.updateCSV();
     }
 }

@@ -1,11 +1,18 @@
 package service;
 
 import entity.Book.Author;
+import service.Read.AuthorReadFromCSV;
+import service.Write.AuthorWriteToCSV;
+
 
 public class AuthorService extends MainService {
     protected static AuthorService instance = null;
+    AuthorWriteToCSV writer = AuthorWriteToCSV.getInstance();
+    AuditService auditService = AuditService.getInstance();
+    AuthorReadFromCSV reader = AuthorReadFromCSV.getInstance();
 
-    public AuthorService() {
+    private AuthorService() {
+        authors = reader.readCSV();
     }
 
     public static AuthorService getInstance() {
@@ -16,11 +23,14 @@ public class AuthorService extends MainService {
     }
 
     Author readAuthor() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
+
         System.out.println("Enter first name");
         String first_name = read.next();
 
         System.out.println("Enter last name");
         String last_name = read.next();
+
         for (Author author : authors)
             if (author.getFirst_name().equals(first_name) && author.getLast_name().equals(last_name)) {
                 System.out.println("Author already exists");
@@ -29,11 +39,13 @@ public class AuthorService extends MainService {
 
         Author author = new Author(first_name, last_name);
         authors.add(author);
+        writer.writeCSV(first_name, last_name);
+        System.out.println(authors);
         return author;
     }
 
-
     public Author getAuthorByFullName() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         System.out.println("Enter first name");
         String first_name = read.next();
 
@@ -46,4 +58,8 @@ public class AuthorService extends MainService {
         return null;
     }
 
+    public void updateCSV()
+    {
+        writer.updateCSV(authors);
+    }
 }

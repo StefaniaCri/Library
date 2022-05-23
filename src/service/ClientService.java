@@ -5,14 +5,23 @@ import entity.Book.Book;
 import entity.Book.Review;
 import entity.Users.Client;
 import entity.Users.User;
+import service.Read.ClientReadFromCSV;
+import service.Write.ClientWriteToCSV;
+
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClientService extends MainService {
     protected static ClientService instance = null;
+    private List<Client> clients;
+    private ClientWriteToCSV writeToCSV = ClientWriteToCSV.getInstance();
+    private ClientReadFromCSV reader = ClientReadFromCSV.getInstance();
+    private AuditService auditService = AuditService.getInstance();
 
-    public ClientService() {
+    private ClientService() {
+        clients = reader.readCSV();
+        usersList.addAll(clients);
     }
 
     public static ClientService getInstance() {
@@ -24,17 +33,21 @@ public class ClientService extends MainService {
 
     public Client createClient() {
 
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         User a = addUser();
 
         System.out.println("Enter your phone number");
         String phoneNumber = read.next();
 
         loggedIn = new Client(a.getName(), a.getSurname(), a.getUsername(), a.getEmail(), a.getPassword(), phoneNumber);
+        writeToCSV.writeCSV((Client) loggedIn);
         usersList.add(loggedIn);
+        clients.add((Client) loggedIn);
         return (Client) loggedIn;
     }
 
     public void addBook(Book b) {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Client) {
             var fav = ((Client) loggedIn).getFavouriteBooks();
             if (fav.contains(b))
@@ -46,6 +59,7 @@ public class ClientService extends MainService {
     }
 
     public void removeBook(Book b) {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Client) {
             var fav = ((Client) loggedIn).getFavouriteBooks();
             if (fav.contains(b)) {
@@ -58,6 +72,7 @@ public class ClientService extends MainService {
     }
 
     public void addAuthor(Author b) {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Client) {
             var fav = ((Client) loggedIn).getFavouriteAuthors();
             if (fav.contains(b))
@@ -69,6 +84,7 @@ public class ClientService extends MainService {
     }
 
     public void removeAutor(Author b) {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Client) {
             var fav = ((Client) loggedIn).getFavouriteAuthors();
             if (fav.contains(b)) {
@@ -81,6 +97,7 @@ public class ClientService extends MainService {
     }
 
     public void leaveReview(Integer numberOfStars, Book reviewed) {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Client) {
             Review review = new Review(loggedIn.getUsername(), numberOfStars);
             var reviews = reviewed.getReviews();
@@ -90,6 +107,7 @@ public class ClientService extends MainService {
     }
 
     public void leaveReview(Integer numberOfStars, Book reviewed, String text) {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Client) {
             Review review = new Review(loggedIn.getUsername(), text, numberOfStars);
             var reviews = reviewed.getReviews();
@@ -102,6 +120,7 @@ public class ClientService extends MainService {
     }
 
     public void rentBooks(String newDate, Book... a) {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Client) {
             if (a.length <= 4) {
 
@@ -131,5 +150,9 @@ public class ClientService extends MainService {
                 System.out.println("You can rent only 4 books");
             }
         }
+    }
+
+    void updateCSV() {
+        writeToCSV.updateCSV(clients);
     }
 }

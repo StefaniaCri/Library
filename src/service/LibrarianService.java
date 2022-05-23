@@ -2,18 +2,26 @@ package service;
 
 import entity.Book.Author;
 import entity.Book.Book;
-import entity.Book.ISBNFormatException;
 import entity.Users.Librarian;
 import entity.Users.User;
+import service.Read.LibrarianReadFromCSV;
+import service.Write.LibrarianWriteToCSV;
 
 import java.util.List;
 
-public class LibrarianService extends MainService{
+public class LibrarianService extends MainService {
     protected static LibrarianService instance = null;
-    private BookService bookService = BookService.getInstance();
-    private AuthorService authorService = AuthorService.getInstance();
+    private final BookService bookService = BookService.getInstance();
+    private final AuthorService authorService = AuthorService.getInstance();
+    private final LibrarianWriteToCSV writeToCSV = LibrarianWriteToCSV.getInstance();
+    private final List<Librarian> librarians;
+    private final AuditService auditService = AuditService.getInstance();
+    private final LibrarianReadFromCSV reader = LibrarianReadFromCSV.getInstance();
 
-    public LibrarianService() {
+
+    private LibrarianService() {
+        librarians = reader.readCSV();
+        usersList.addAll(librarians);
     }
 
     public static LibrarianService getInstance() {
@@ -24,20 +32,25 @@ public class LibrarianService extends MainService{
     }
 
     public Librarian createLibrarian() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         User a = addUser();
+        writeToCSV.writeCSV(a);
         loggedIn = new Librarian(a.getName(), a.getSurname(), a.getUsername(), a.getEmail(), a.getPassword());
         usersList.add(loggedIn);
+        librarians.add((Librarian) loggedIn);
         return (Librarian) loggedIn;
     }
 
-    public static void seeUsers() {
+    public void seeUsers() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Librarian) {
             List<User> users = instance.sortList();
             System.out.println(users);
         } else System.out.println("You are not logged in an account");
     }
 
-    public void addBook() throws ISBNFormatException {
+    public void addBook() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Librarian) {
             Book book = bookService.readBook();
             instance.books.add(book);
@@ -46,6 +59,7 @@ public class LibrarianService extends MainService{
     }
 
     public void editBook() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Librarian) {
             System.out.println("Title of the book you are looking for");
             String title = read.next();
@@ -63,6 +77,7 @@ public class LibrarianService extends MainService{
     }
 
     public void removeBook() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Librarian) {
             System.out.println("Title of the book you are looking for");
             String title1 = read.next();
@@ -72,6 +87,7 @@ public class LibrarianService extends MainService{
     }
 
     public void addAuthor() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Librarian) {
             Author a = authorService.readAuthor();
             instance.authors.add(a);
@@ -79,6 +95,7 @@ public class LibrarianService extends MainService{
     }
 
     public void removeAuthor() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Librarian) {
             System.out.println("First name of the author you are looking for");
             String first_name = read.next();
@@ -88,5 +105,8 @@ public class LibrarianService extends MainService{
         } else System.out.println("You are not logged in an account");
 
     }
-
+    void updateCSV()
+    {
+        writeToCSV.updateCSV(librarians);
+    }
 }

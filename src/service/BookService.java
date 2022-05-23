@@ -1,12 +1,19 @@
 package service;
 
 import entity.Book.*;
+import service.Read.BookReadFromCSV;
+import service.Write.BookWriteToCSV;
 
 public class BookService extends MainService {
     protected static BookService instance = null;
     AuthorService authorService = AuthorService.getInstance();
     ISBNService isbnService = ISBNService.getInstance();
-    public BookService() {
+    BookWriteToCSV write = BookWriteToCSV.getInstance();
+    BookReadFromCSV reader = BookReadFromCSV.getInstance();
+    AuditService auditService = AuditService.getInstance();
+
+    private BookService() {
+        books = reader.readCSV();
     }
 
     public static BookService getInstance() {
@@ -15,8 +22,17 @@ public class BookService extends MainService {
         }
         return instance;
     }
-    Book readBook() throws ISBNFormatException {
-        ISBN isbn = isbnService.readISBN();
+
+    Book readBook() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
+
+        ISBN isbn = null;
+        try {
+            isbn = isbnService.readISBN();
+        } catch (ISBNFormatException e) {
+            e.printStackTrace();
+        }
+
         System.out.println("Enter title");
         String title = read.next();
         System.out.println("Enter pages");
@@ -31,13 +47,19 @@ public class BookService extends MainService {
 
         System.out.println("Pick the number of booktype");
         Integer i = read.nextInt();
+
         BookType bookType = bookTypes[i];
         System.out.println("Publishing house");
         String publishingHouse = read.next();
-        return new Book(isbn, title, pages, author, bookType, publishingHouse);
+
+
+        Book a = new Book(isbn, title, pages, author, bookType, publishingHouse);
+        write.writeCSV(a);
+        return a;
     }
 
     public Book getBookByTitle() {
+        auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         System.out.println("Title of the book you are looking for");
         String title = read.next();
         for (Book book1 : instance.books) {
@@ -47,5 +69,9 @@ public class BookService extends MainService {
             }
         }
         return null;
+    }
+    public void updateCSV()
+    {
+        write.updateCSV(books);
     }
 }

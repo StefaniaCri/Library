@@ -12,6 +12,10 @@ public class Author {
         this.last_name = last_name;
     }
 
+    public Author() {
+
+    }
+
     public List<Book> getBooks() {
         return books;
     }
