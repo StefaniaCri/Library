@@ -2,6 +2,9 @@ package service;
 
 import entity.Book.Author;
 import entity.Book.Book;
+import entity.Users.Client;
+import repository.*;
+import config.DatabaseConfiguration;
 
 
 import java.time.LocalDateTime;
@@ -16,13 +19,17 @@ public class Main {
         MainService service = MainService.getInstance();
         ClientService client = ClientService.getInstance();
         LibrarianService librarian = LibrarianService.getInstance();
-        BookService bookService = BookService.getInstance();
         AuthorService authorService = AuthorService.getInstance();
+        BookService bookService = BookService.getInstance();
+        BookRepository bookRepository = new BookRepository();
+
+        bookRepository.createTable();
         Scanner read = new Scanner(System.in);
         Boolean authorNeedUpdate = false;
         Boolean bookNeedUpdate = false;
         Boolean clientNeedUpdate = false;
         Boolean librarianNeedUpdate = false;
+
         int option;
         do {
             int option1;
@@ -194,5 +201,9 @@ public class Main {
             client.updateCSV();
         if(bookNeedUpdate)
             bookService.updateCSV();
+
+        DatabaseConfiguration.closeDatabaseConfiguration();
     }
+
+
 }

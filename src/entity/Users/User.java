@@ -4,20 +4,24 @@ package entity.Users;
 import org.jetbrains.annotations.NotNull;
 
 public class User implements Comparable<User> {
+    protected Integer id;
     protected String name;
     protected String surname;
     protected String username;
     protected String email;
     protected String password;
-    protected static long id = 0;
+
 
     public User(String name, String surname, String username, String email, String password) {
-        this.id++;
         this.name = name;
         this.surname = surname;
         this.username = username;
         this.email = email;
         this.password = password;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getName() {

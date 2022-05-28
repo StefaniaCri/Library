@@ -6,6 +6,7 @@ import entity.Book.Author;
 import java.util.*;
 
 public class Client extends User {
+
     private String phoneNumber;
     private HashMap<String, List<Book>> rentedBooks = new HashMap<>();
     private Set<Book> favouriteBooks = new HashSet<>();

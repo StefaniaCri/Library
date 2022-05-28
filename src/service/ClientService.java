@@ -5,6 +5,8 @@ import entity.Book.Book;
 import entity.Book.Review;
 import entity.Users.Client;
 import entity.Users.User;
+import repository.ClientRepository;
+import repository.ReviewRepository;
 import service.Read.ClientReadFromCSV;
 import service.Write.ClientWriteToCSV;
 
@@ -18,9 +20,11 @@ public class ClientService extends MainService {
     private ClientWriteToCSV writeToCSV = ClientWriteToCSV.getInstance();
     private ClientReadFromCSV reader = ClientReadFromCSV.getInstance();
     private AuditService auditService = AuditService.getInstance();
-
+    private ClientRepository clientRepository = new ClientRepository();
+    private ReviewRepository reviewRepository = new ReviewRepository();
     private ClientService() {
-        clients = reader.readCSV();
+        //clients = reader.readCSV();
+        clients = clientRepository.getAllClient();
         usersList.addAll(clients);
     }
 
@@ -41,6 +45,7 @@ public class ClientService extends MainService {
 
         loggedIn = new Client(a.getName(), a.getSurname(), a.getUsername(), a.getEmail(), a.getPassword(), phoneNumber);
         writeToCSV.writeCSV((Client) loggedIn);
+        clientRepository.addClient((Client) loggedIn);
         usersList.add(loggedIn);
         clients.add((Client) loggedIn);
         return (Client) loggedIn;
@@ -100,9 +105,11 @@ public class ClientService extends MainService {
         auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Client) {
             Review review = new Review(loggedIn.getUsername(), numberOfStars);
+            reviewRepository.addReview(review);
             var reviews = reviewed.getReviews();
             reviews.add(review);
             reviewed.setReviews(reviews);
+
         } else System.out.println("You are not logged in an account");
     }
 
@@ -110,6 +117,7 @@ public class ClientService extends MainService {
         auditService.write(new Throwable().getStackTrace()[0].getMethodName());
         if (loggedIn instanceof Client) {
             Review review = new Review(loggedIn.getUsername(), text, numberOfStars);
+            reviewRepository.addReview(review);
             var reviews = reviewed.getReviews();
             //System.out.println(reviews);
             reviews.add(review);

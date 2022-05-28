@@ -2,6 +2,8 @@ package service;
 
 import entity.Book.*;
 import entity.Users.*;
+import repository.ClientRepository;
+import repository.LibrarianRepository;
 
 import java.util.*;
 
@@ -10,6 +12,8 @@ public class MainService {
     protected static User loggedIn = null;
     protected static MainService instance = null;
     private AuditService auditService = AuditService.getInstance();
+    private LibrarianRepository librarianRepository = new LibrarianRepository();
+    private ClientRepository clientRepository = new ClientRepository();
 
     public MainService() {
     }
@@ -28,6 +32,7 @@ public class MainService {
 
     User addUser() {
         auditService.write(new Throwable().getStackTrace()[0].getMethodName());
+        var id = 1;
         System.out.println("Enter your name: ");
         String name = read.next();
 
@@ -92,6 +97,12 @@ public class MainService {
             if (loggedIn.getPassword().equals(password)) {
                 System.out.println("Your new password?");
                 String newpassword = read.next();
+                if (loggedIn instanceof Librarian){
+                    librarianRepository.changeLibrarianPassword((Librarian) loggedIn,newpassword);
+                }
+                if (loggedIn instanceof Client){
+                    clientRepository.changeClientPassword((Client) loggedIn,newpassword);
+                }
                 loggedIn.setPassword(newpassword);
                 System.out.println("Your password has been changed sucesfully!");
             } else {

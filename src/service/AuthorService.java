@@ -1,6 +1,7 @@
 package service;
 
 import entity.Book.Author;
+import repository.AuthorRepository;
 import service.Read.AuthorReadFromCSV;
 import service.Write.AuthorWriteToCSV;
 
@@ -10,9 +11,10 @@ public class AuthorService extends MainService {
     AuthorWriteToCSV writer = AuthorWriteToCSV.getInstance();
     AuditService auditService = AuditService.getInstance();
     AuthorReadFromCSV reader = AuthorReadFromCSV.getInstance();
-
+    AuthorRepository authorRepositoryUsingStatements = new AuthorRepository();
     private AuthorService() {
-        authors = reader.readCSV();
+        //authors = reader.readCSV();
+        authors = authorRepositoryUsingStatements.getAllAuthors();
     }
 
     public static AuthorService getInstance() {
@@ -39,6 +41,8 @@ public class AuthorService extends MainService {
 
         Author author = new Author(first_name, last_name);
         authors.add(author);
+        authorRepositoryUsingStatements.addAuthor(author);
+        author.setId(authorRepositoryUsingStatements.getAuthorID(author));
         writer.writeCSV(first_name, last_name);
         System.out.println(authors);
         return author;

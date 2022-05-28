@@ -4,6 +4,9 @@ import entity.Book.Author;
 import entity.Book.Book;
 import entity.Users.Librarian;
 import entity.Users.User;
+import repository.AuthorRepository;
+import repository.BookRepository;
+import repository.LibrarianRepository;
 import service.Read.LibrarianReadFromCSV;
 import service.Write.LibrarianWriteToCSV;
 
@@ -17,10 +20,12 @@ public class LibrarianService extends MainService {
     private final List<Librarian> librarians;
     private final AuditService auditService = AuditService.getInstance();
     private final LibrarianReadFromCSV reader = LibrarianReadFromCSV.getInstance();
-
-
+    AuthorRepository authorRepository = new AuthorRepository();
+    LibrarianRepository librarianRepository = new LibrarianRepository();
+    BookRepository bookRepository = new BookRepository();
     private LibrarianService() {
-        librarians = reader.readCSV();
+        //librarians = reader.readCSV();
+        librarians = librarianRepository.getAllLibrarians();
         usersList.addAll(librarians);
     }
 
@@ -36,6 +41,7 @@ public class LibrarianService extends MainService {
         User a = addUser();
         writeToCSV.writeCSV(a);
         loggedIn = new Librarian(a.getName(), a.getSurname(), a.getUsername(), a.getEmail(), a.getPassword());
+        librarianRepository.addLibrarian((Librarian) loggedIn);
         usersList.add(loggedIn);
         librarians.add((Librarian) loggedIn);
         return (Librarian) loggedIn;
@@ -54,6 +60,7 @@ public class LibrarianService extends MainService {
         if (loggedIn instanceof Librarian) {
             Book book = bookService.readBook();
             instance.books.add(book);
+            bookRepository.addBook(book);
         } else System.out.println("You are not logged in an account");
 
     }
@@ -69,6 +76,7 @@ public class LibrarianService extends MainService {
 
                 if (book1.getTitle().equals(title)) {
                     Integer pages = read.nextInt();
+                    bookRepository.editBook(book1,pages);
                     book1.setPages(pages);
                 }
             }
@@ -81,7 +89,9 @@ public class LibrarianService extends MainService {
         if (loggedIn instanceof Librarian) {
             System.out.println("Title of the book you are looking for");
             String title1 = read.next();
+            bookRepository.deleteBook(title1);
             instance.books.removeIf(book2 -> book2.getTitle().equals(title1));
+
         } else System.out.println("You are not logged in an account");
 
     }
@@ -91,6 +101,7 @@ public class LibrarianService extends MainService {
         if (loggedIn instanceof Librarian) {
             Author a = authorService.readAuthor();
             instance.authors.add(a);
+
         } else System.out.println("You are not logged in an account");
     }
 
@@ -102,6 +113,8 @@ public class LibrarianService extends MainService {
             System.out.println("Last name of the author you are looking for");
             String lasr_name = read.next();
             instance.authors.removeIf(author -> author.getFirst_name().equals(first_name) && author.getLast_name().equals(lasr_name));
+            authorRepository.deleteAuthor(first_name,lasr_name);
+
         } else System.out.println("You are not logged in an account");
 
     }

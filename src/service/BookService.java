@@ -1,6 +1,7 @@
 package service;
 
 import entity.Book.*;
+import repository.BookRepository;
 import service.Read.BookReadFromCSV;
 import service.Write.BookWriteToCSV;
 
@@ -11,9 +12,11 @@ public class BookService extends MainService {
     BookWriteToCSV write = BookWriteToCSV.getInstance();
     BookReadFromCSV reader = BookReadFromCSV.getInstance();
     AuditService auditService = AuditService.getInstance();
+    BookRepository bookRepository = new BookRepository();
 
     private BookService() {
-        books = reader.readCSV();
+        //books = reader.readCSV();
+        books = bookRepository.getAllBooks();
     }
 
     public static BookService getInstance() {

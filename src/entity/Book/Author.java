@@ -3,6 +3,7 @@ package entity.Book;
 import java.util.List;
 
 public class Author {
+    private int id;
     private String first_name;
     private String last_name;
     private List<Book> books;
@@ -14,6 +15,14 @@ public class Author {
 
     public Author() {
 
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public List<Book> getBooks() {

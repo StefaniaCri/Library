@@ -22,11 +22,20 @@ public enum BookType {
     History(19),
     Travel(20),
     True_Crime(21),
-    Essays(22);
+    Essays(22),
+    ArtBooks(23);
 
     private Integer id;
 
     BookType(int i) {
         id = i;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }
